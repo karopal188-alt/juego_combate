@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EL UMBRAL: Décimo Torneo — Pixel Fighter 2D</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="arcade-shell">
+    <!-- Top Arcade Header -->
+    <header class="arcade-topbar">
+      <div class="brand">
+        <span class="eclipse-dot"></span>
+        <span class="brand-title">EL UMBRAL <small>DÉCIMO TORNEO</small></span>
+      </div>
+      <div class="topbar-controls">
+        <button id="btn-crt" class="retro-btn small" title="Alternar filtro CRT">CRT: ON</button>
+        <button id="btn-audio" class="retro-btn small" title="Alternar sonido">SONIDO: ON</button>
+        <button id="btn-help" class="retro-btn small" title="Ver controles y poderes">CONTROLES</button>
+        <button id="btn-menu" class="retro-btn small hidden">MENÚ</button>
+      </div>
+    </header>
+
+    <!-- Main Game Viewport -->
+    <main id="viewport-wrapper">
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+      <div id="crt-overlay" class="crt-active"></div>
+
+      <!-- SCREEN: TITLE -->
+      <section id="screen-title" class="screen-overlay active">
+        <div class="eclipse-bg-emblem">
+          <div class="sun sun-left"></div>
+          <div class="sun sun-right"></div>
+          <div class="sun sun-center"></div>
+        </div>
+        <div class="title-content">
+          <p class="subtitle-lore">CADA MIL AÑOS, LOS TRES SOLES SANGRAN EN ROJO</p>
+          <h1 class="game-logo">EL UMBRAL</h1>
+          <h2 class="game-sublogo">CRÓNICAS DEL DÉCIMO TORNEO</h2>
+          <p class="tagline">Terra ha perdido 9 veces contra Valthor. Si cae hoy, el mundo será absorbido.</p>
+
+          <div class="menu-buttons">
+            <button id="btn-story-mode" class="retro-btn primary">MODO HISTORIA (3 ACTOS)</button>
+            <button id="btn-versus-mode" class="retro-btn">TORNEO / VERSUS</button>
+            <button id="btn-codex" class="retro-btn">CÓDICE DE REINOS Y LUCHADORES</button>
+          </div>
+
+          <div class="quick-controls-bar">
+            <span><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> Mover / Saltar / Agacharse</span>
+            <span><kbd>CLIC IZQ.</kbd> Atacar / Combo / Ejecutar</span>
+            <span><kbd>CLIC DER.</kbd> o <kbd>E</kbd> Poder Especial</span>
+            <span><kbd>Q</kbd> Arte Elemental</span>
+            <span><kbd>ESPACIO</kbd> Poder Supremo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: STORY ACT SELECT -->
+      <section id="screen-story" class="screen-overlay">
+        <div class="panel-box wide">
+          <div class="panel-header">
+            <h2>CAMPAÑA DEL DÉCIMO TORNEO</h2>
+            <button class="retro-btn small back-to-title">VOLVER</button>
+          </div>
+          <p class="panel-desc">Sigue la historia canon desde la invocación del Maestro Orin hasta la batalla final en el Eclipse Rojo.</p>
+          <div id="acts-grid" class="acts-grid"></div>
+        </div>
+      </section>
+
+      <!-- SCREEN: VERSUS / CHARACTER & ARENA SELECT -->
+      <section id="screen-select" class="screen-overlay">
+        <div class="panel-box wide">
+          <div class="panel-header">
+            <h2>SELECCIÓN DE COMBATE</h2>
+            <button class="retro-btn small back-to-title">VOLVER</button>
+          </div>
+          <div class="select-layout">
+            <div class="select-column">
+              <h3>1. ELIGE TU GUERRERO</h3>
+              <div id="roster-player" class="roster-grid"></div>
+              <div id="player-preview-card" class="fighter-card"></div>
+            </div>
+            <div class="select-column">
+              <h3>2. ELIGE RIVAL</h3>
+              <div id="roster-enemy" class="roster-grid"></div>
+              <div id="enemy-preview-card" class="fighter-card"></div>
+            </div>
+          </div>
+          <div class="arena-select-row">
+            <h3>3. ARENA INTERACTIVA</h3>
+            <div id="arena-selector" class="arena-pills"></div>
+          </div>
+          <div class="select-footer">
+            <label class="diff-label">DIFICULTAD IA:
+              <select id="cpu-difficulty" class="retro-select">
+                <option value="normal" selected>Guerrero (Normal)</option>
+                <option value="hard">Maestro (Difícil)</option>
+                <option value="easy">Aprendiz (Fácil)</option>
+              </select>
+            </label>
+            <button id="btn-start-versus" class="retro-btn primary">¡COMENZAR COMBATE!</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: CODEX -->
+      <section id="screen-codex" class="screen-overlay">
+        <div class="panel-box wide scrollable">
+          <div class="panel-header">
+            <h2>CÓDICE DE EL UMBRAL</h2>
+            <button class="retro-btn small back-to-title">VOLVER</button>
+          </div>
+          <div id="codex-content" class="codex-content"></div>
+        </div>
+      </section>
+
+      <!-- SCREEN: STORY CUTSCENE -->
+      <section id="screen-cutscene" class="screen-overlay">
+        <div class="cutscene-box">
+          <div id="cutscene-act-badge" class="act-badge">ACTO 1</div>
+          <div class="cutscene-stage">
+            <canvas id="cutsceneCanvas" width="760" height="240"></canvas>
+          </div>
+          <div class="dialogue-panel">
+            <div class="speaker-row">
+              <span id="dialogue-speaker" class="speaker-name">MAESTRO ORIN</span>
+              <span id="dialogue-realm" class="speaker-realm">TERRA</span>
+            </div>
+            <p id="dialogue-text" class="dialogue-text"></p>
+            <div class="dialogue-actions">
+              <button id="btn-cutscene-skip" class="retro-btn small">SALTAR ESCENA</button>
+              <button id="btn-cutscene-next" class="retro-btn primary small">SIGUIENTE ▶</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- IN-GAME HUD OVERLAY -->
+      <div id="combat-hud" class="hidden">
+        <div class="hud-top">
+          <!-- Player 1 HUD -->
+          <div class="fighter-hud p1">
+            <div class="hud-name-row">
+              <span id="p1-name" class="hud-name">KAELEN</span>
+              <div id="p1-rounds" class="round-gems"></div>
+            </div>
+            <div class="hp-bar-outer">
+              <div id="p1-hp-trail" class="hp-trail"></div>
+              <div id="p1-hp-fill" class="hp-fill"></div>
+              <span id="p1-hp-text" class="hp-val">100</span>
+            </div>
+            <div class="chi-bar-outer">
+              <div id="p1-chi-fill" class="chi-fill"></div>
+              <div class="chi-segments"><span></span><span></span><span></span></div>
+              <span id="p1-chi-label" class="chi-label">CHI 0/3</span>
+            </div>
+            <div id="p1-combo" class="combo-badge hidden">2 HITS!</div>
+          </div>
+
+          <!-- Center Match Timer & Act Info -->
+          <div class="hud-center">
+            <div id="hud-stage-tag" class="stage-tag">ISLA DEL UMBRAL</div>
+            <div id="hud-timer" class="match-timer">99</div>
+            <div id="hud-round-label" class="round-label">RONDA 1</div>
+          </div>
+
+          <!-- Player 2 HUD -->
+          <div class="fighter-hud p2">
+            <div class="hud-name-row">
+              <div id="p2-rounds" class="round-gems"></div>
+              <span id="p2-name" class="hud-name">VESPERA</span>
+            </div>
+            <div class="hp-bar-outer">
+              <div id="p2-hp-trail" class="hp-trail"></div>
+              <div id="p2-hp-fill" class="hp-fill"></div>
+              <span id="p2-hp-text" class="hp-val">100</span>
+            </div>
+            <div class="chi-bar-outer">
+              <div id="p2-chi-fill" class="chi-fill"></div>
+              <div class="chi-segments"><span></span><span></span><span></span></div>
+              <span id="p2-chi-label" class="chi-label">CHI 0/3</span>
+            </div>
+            <div id="p2-combo" class="combo-badge hidden">2 HITS!</div>
+          </div>
+        </div>
+
+        <!-- Bottom Action Hint Strip -->
+        <div class="hud-bottom-bar">
+          <span id="hud-move-1"><strong class="key">CLIC IZQ</strong> Combo / Aéreo / Barrido (+↓)</span>
+          <span id="hud-move-2"><strong class="key">CLIC DER / E</strong> <em id="hud-special-name">Especial</em> (1 Chi)</span>
+          <span id="hud-move-3"><strong class="key">Q</strong> <em id="hud-element-name">Arte</em> (2 Chi)</span>
+          <span id="hud-move-4"><strong class="key">ESPACIO</strong> <em id="hud-ult-name">Supremo</em> (3 Chi)</span>
+          <span id="hud-move-5"><strong class="key">SHIFT</strong> Bloquear</span>
+        </div>
+      </div>
+
+      <!-- ANNOUNCER BANNER -->
+      <div id="announcer-banner" class="hidden">
+        <div id="announcer-main" class="announcer-main">ROUND 1</div>
+        <div id="announcer-sub" class="announcer-sub">PREPÁRATE PARA EL COMBATE</div>
+      </div>
+
+      <!-- POST-MATCH OVERLAY -->
+      <section id="screen-postmatch" class="screen-overlay">
+        <div class="panel-box compact">
+          <h2 id="postmatch-title" class="victory-title">¡VICTORIA!</h2>
+          <p id="postmatch-desc" class="panel-desc"></p>
+          <div id="postmatch-stats" class="postmatch-stats"></div>
+          <div class="menu-buttons row">
+            <button id="btn-post-next" class="retro-btn primary">CONTINUAR</button>
+            <button id="btn-post-retry" class="retro-btn">REINTENTAR</button>
+            <button id="btn-post-menu" class="retro-btn">MENÚ PRINCIPAL</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTROLS / POWERS MODAL -->
+      <section id="screen-help" class="screen-overlay">
+        <div class="panel-box wide scrollable">
+          <div class="panel-header">
+            <h2>CONTROLES Y SISTEMA DE PODERES</h2>
+            <button id="btn-close-help" class="retro-btn small">CERRAR</button>
+          </div>
+          <div class="help-grid">
+            <div class="help-card">
+              <h3>MOVIMIENTO (FLECHAS DIRECCIONALES)</h3>
+              <ul>
+                <li><kbd>←</kbd> / <kbd>→</kbd> : Desplazarse por la arena y plataformas.</li>
+                <li><kbd>↑</kbd> : Saltar (vuelve a pulsar en el aire para <strong>Doble Salto</strong>).</li>
+                <li><kbd>↓</kbd> : Agacharse (esquiva proyectiles altos) o bajar de plataformas flotantes.</li>
+                <li><kbd>SHIFT</kbd> : Guardia / Bloqueo (reduce 80% del daño y carga Chi).</li>
+              </ul>
+            </div>
+            <div class="help-card">
+              <h3>COMBATE (CLIC IZQUIERDO DEL MOUSE)</h3>
+              <ul>
+                <li><kbd>CLIC IZQ.</kbd> (en suelo) : <strong>Combo de 3 Golpes</strong> (Puño → Patada → Gancho ascendente).</li>
+                <li><kbd>↓</kbd> + <kbd>CLIC IZQ.</kbd> : <strong>Barrido Bajo</strong> (derriba al rival).</li>
+                <li><kbd>↑</kbd> / En el aire + <kbd>CLIC IZQ.</kbd> : <strong>Patada Aérea / Descendente</strong>.</li>
+                <li><strong>¡ACABA CON ÉL!</strong> : Cuando el rival quede aturdido en la ronda final, pulsa <kbd>CLIC IZQ.</kbd> cerca de él para ejecutar un <strong>FATALITY</strong>.</li>
+              </ul>
+            </div>
+            <div class="help-card">
+              <h3>SISTEMA DE CHI Y PODERES</h3>
+              <ul>
+                <li><kbd>CLIC DER.</kbd> o <kbd>E</kbd> (<strong>1 Chi</strong>) : Poder Especial (Proyectil / Cadena / Dash).</li>
+                <li><kbd>Q</kbd> (<strong>2 Chi</strong>) : Arte Elemental de Plataforma (controla zonas o teletransporta).</li>
+                <li><kbd>ESPACIO</kbd> (<strong>3 Chi</strong>) : <strong>ARTE SUPREMO</strong> devastador.</li>
+                <li>En el <strong>Acto 3</strong>, Kaelen despierta su llama ancestral dorada al combatir contra Malakor.</li>
+              </ul>
+            </div>
+            <div class="help-card">
+              <h3>ARENAS INTERACTIVAS</h3>
+              <ul>
+                <li><strong>Runas del Umbral</strong> : Golpéalas o tócalas para recargar Chi y salud.</li>
+                <li><strong>Géiseres de Magma (Valthor)</strong> : Burbujean antes de erupcionar; úsalos para lanzar al enemigo.</li>
+                <li><strong>Portales Etéreos (El Vacío)</strong> : Cruza portales laterales para emboscar por la espalda.</li>
+                <li><strong>Cima del Eclipse (Acto 3)</strong> : Plataformas que tiemblan y sellos de poder bajo los Tres Soles.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/arenas.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
